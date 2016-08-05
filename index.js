@@ -77,37 +77,35 @@ exports.getTermProps = (uid, parentProps, props) => {
   });
 }
 
-/*
- *  extends hterm object to set `setWindowTitle` method and run onTitle event.
- */
 exports.decorateTerm = (Term, {React}) => {
 	return class extends React.Component {
 		onTerminal(term){
 			this.term = term;
+      const originalOnTerminal = this.props.onTerminal;
+      if (originalOnTerminal) originalOnTerminal(term);
 		}
+
+    onWheel(e){
+      if (this.props.inAlternateScreen) {
+        if (e.wheelDeltaY < 0 ){
+          this.props.alternateScrollDown(Math.ceil(-e.wheelDeltaY / 300));
+        } else if (e.wheelDeltaY > 0 ){
+          this.props.alternateScrollUp(Math.ceil(e.wheelDeltaY / 300));
+        }
+        e.preventDefault();
+      }
+    }
 
 		componentWillReceiveProps(newProps){
 			if (newProps.inAlternateScreen != this.props.inAlternateScreen) {
+        // disable scrolling if in alternate screen
 		    this.term.prefs_.set('scroll-wheel-move-multiplier', newProps.inAlternateScreen ? 0 : 1);
 			}
 		}
 
 		render() {
-			const originalOnTerminal = this.props.onTerminal;
-			const onTerminal = (term) => {
-				this.onTerminal(term);
-				if (originalOnTerminal) originalOnTerminal(term);
-			};
-			const onWheel = (e) => {
-				if (this.props.inAlternateScreen) {
-					if (e.wheelDeltaY < 0 ){
-						this.props.alternateScrollDown(Math.ceil(-e.wheelDeltaY / 300));
-					} else if (e.wheelDeltaY > 0 ){
-						this.props.alternateScrollUp(Math.ceil(e.wheelDeltaY / 300));
-					}
-					e.preventDefault();
-				}
-			};
+			const onTerminal = this.onTerminal.bind(this);
+			const onWheel = this.onWheel.bind(this);
 
 			const props = Object.assign({}, this.props, {onWheel, onTerminal});
 
