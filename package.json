@@ -1,6 +1,6 @@
 {
   "name": "hyperterm-alternatescroll",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Mousewheel/trackpad scrolling for alternate screen. (less, git log, nano, etc...)",
   "repository": "lkzhao/hyperterm-alternatescroll",
   "license": "MIT",

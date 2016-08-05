@@ -1,7 +1,6 @@
 exports.reduceSessions = (state, action) => {
   switch (action.type) {
     case 'ALTERNATE_SCREEN_ON':
-		  console.log("ALTERNATE_SCREEN_ON")
       return state.merge({
         sessions: {
           [action.uid]: {
@@ -10,7 +9,6 @@ exports.reduceSessions = (state, action) => {
         }
       }, { deep: true });
     case 'ALTERNATE_SCREEN_OFF':
-		  console.log("ALTERNATE_SCREEN_OFF")
       return state.merge({
         sessions: {
           [action.uid]: {
@@ -22,30 +20,32 @@ exports.reduceSessions = (state, action) => {
   return state;
 };
 
-function alternateScrollDown () {
+function alternateScrollDown(lines) {
 	return (dispatch, getState) => {
 		dispatch({
 			type: 'ALTERNATE_SCROLL_DOWN',
+      lines: lines,
 			effect () {
 				const { sessions } = getState();
 				const uid = sessions.activeUid;
 				if (sessions.sessions[uid].inAlternateScreen){
-					window.rpc.emit('data', { uid:uid, data:'\u001bOB' });
+					window.rpc.emit('data', { uid:uid, data:'\u001bOB'.repeat(lines) });
 				}
 			}
 		});
 	};
 }
 
-function alternateScrollUp () {
+function alternateScrollUp(lines) {
 	return (dispatch, getState) => {
 		dispatch({
 			type: 'ALTERNATE_SCROLL_UP',
+      lines: lines,
 			effect () {
 				const { sessions } = getState();
 				const uid = sessions.activeUid;
 				if (sessions.sessions[uid].inAlternateScreen){
-					window.rpc.emit('data', { uid:uid, data:'\u001bOA' });
+					window.rpc.emit('data', { uid:uid, data:'\u001bOA'.repeat(lines) });
 				}
 			}
 		});
@@ -54,11 +54,11 @@ function alternateScrollUp () {
 
 exports.mapTermsDispatch = (dispatch, map) => {
 	return Object.assign(map, {
-		alternateScrollDown: () => {
-			dispatch(alternateScrollDown());
+		alternateScrollDown: (lines) => {
+			dispatch(alternateScrollDown(lines));
 		},
-		alternateScrollUp: () => {
-			dispatch(alternateScrollUp());
+		alternateScrollUp: (lines) => {
+			dispatch(alternateScrollUp(lines));
 		},
 	});
 };
@@ -101,9 +101,9 @@ exports.decorateTerm = (Term, {React}) => {
 			const onWheel = (e) => {
 				if (this.props.inAlternateScreen) {
 					if (e.wheelDeltaY < 0 ){
-						this.props.alternateScrollDown();
+						this.props.alternateScrollDown(Math.ceil(-e.wheelDeltaY / 300));
 					} else if (e.wheelDeltaY > 0 ){
-						this.props.alternateScrollUp();
+						this.props.alternateScrollUp(Math.ceil(e.wheelDeltaY / 300));
 					}
 					e.preventDefault();
 				}
