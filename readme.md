@@ -2,12 +2,10 @@
 
 Mousewheel/trackpad scrolling for alternate screen. (less, git log, nano, etc...)
 
-## NOTE: This won't work for the current version of hyperterm.
-You will need the following patch to your hyperterm in order for this plugin to work:
+## Requirement
 
-[Fix mapXDispatch && allow plugin to access onWheel](https://github.com/zeit/hyperterm/pull/563)
+Hyperterm **0.7.2** or the latest master branch.
 
-You can manually apply this patch to your local copy of hyperterm or just wait for hyperterm to update.
 
 # Demo
 
