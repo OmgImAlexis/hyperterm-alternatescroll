@@ -1,5 +1,7 @@
 # hyperterm-alternatescroll for [hyperterm](https://hyperterm.org/)
 
+[![npm version](https://img.shields.io/npm/v/hyperterm-alternatescroll.svg)](https://www.npmjs.com/package/hyperterm-alternatescroll)
+
 Mousewheel/trackpad scrolling for alternate screen. (less, git log, nano, etc...)
 
 ## Requirement
@@ -30,17 +32,16 @@ add `hyperterm-alternatescroll` to `~/.hyperterm.js`'s plugin list.
 
 # Config
 
-You can tweak the scroll speed of this plugin in `~/.hyperterm.js`.
-```
+You can tweak the scroll speed in `~/.hyperterm.js`.
+```javascript
 module.exports = {
   config: {
     // for hyperterm-alternatescroll plugin
     alternateScroll: {
-      scrollSpeed: 80 // 1 to 100 is supported
+      // 1 to 100 is supported
+      scrollSpeed: 80
     }
-    // ...
   }
-  // ...
 }
 ```
 
