@@ -77,8 +77,29 @@ exports.getTermProps = (uid, parentProps, props) => {
   });
 }
 
+
+var scrollingDelta;
+function updateCurrentConfigScrollingDelta(){
+  var userScrollSpeed = 50;
+  try{
+    userScrollSpeed = window.config.getConfig().alternateScroll.scrollSpeed;
+    if (userScrollSpeed > 100 || userScrollSpeed < 1) {
+      userScrollSpeed = Math.min(100, Math.max(1,userScrollSpeed));
+      console.error("Plugin: hyperterm-alternatescroll", "scrollSpeed should be between 1 and 100");
+    }
+  } catch(e){}
+  scrollingDelta = 510 - (userScrollSpeed*5);
+}
+
 exports.decorateTerm = (Term, {React}) => {
+  updateCurrentConfigScrollingDelta();
+
 	return class extends React.Component {
+    constructor() {
+      super();
+      this.currentDelta = 0;
+    }
+
 		onTerminal(term){
 			this.term = term;
       const originalOnTerminal = this.props.onTerminal;
@@ -87,10 +108,13 @@ exports.decorateTerm = (Term, {React}) => {
 
     onWheel(e){
       if (this.props.inAlternateScreen) {
-        if (e.wheelDeltaY < 0 ){
-          this.props.alternateScrollDown(Math.ceil(-e.wheelDeltaY / 300));
-        } else if (e.wheelDeltaY > 0 ){
-          this.props.alternateScrollUp(Math.ceil(e.wheelDeltaY / 300));
+        this.currentDelta += e.wheelDeltaY;
+        if (this.currentDelta < -scrollingDelta){
+          this.props.alternateScrollDown(Math.min(5, -this.currentDelta / scrollingDelta));
+          this.currentDelta = -(-this.currentDelta % scrollingDelta);
+        } else if (this.currentDelta > scrollingDelta) {
+          this.props.alternateScrollUp(Math.min(5, this.currentDelta / scrollingDelta));
+          this.currentDelta = this.currentDelta % scrollingDelta;
         }
         e.preventDefault();
       }
@@ -128,6 +152,8 @@ exports.middleware = (store) => (next) => (action) => {
         uid: action.uid
       });
     }
-	}
+	} else if (action.type == "CONFIG_RELOAD") {
+    updateCurrentConfigScrollingDelta();
+  }
 	next(action);
 };
