@@ -8,5 +8,11 @@
   "keywords": [],
   "files": [
     "index.js"
-  ]
+  ],
+  "devDependencies": {
+    "js-beautify": "^1.6.4"
+  },
+  "scripts": {
+    "format": "js-beautify -r index.js"
+  }
 }

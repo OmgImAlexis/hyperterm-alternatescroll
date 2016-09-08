@@ -7,7 +7,9 @@ exports.reduceSessions = (state, action) => {
             inAlternateScreen: true
           }
         }
-      }, { deep: true });
+      }, {
+        deep: true
+      });
     case 'ALTERNATE_SCREEN_OFF':
       return state.merge({
         sessions: {
@@ -15,63 +17,75 @@ exports.reduceSessions = (state, action) => {
             inAlternateScreen: false
           }
         }
-      }, { deep: true });
+      }, {
+        deep: true
+      });
   }
   return state;
 };
 
 function alternateScrollDown(lines) {
-	return (dispatch, getState) => {
-		dispatch({
-			type: 'ALTERNATE_SCROLL_DOWN',
+  return (dispatch, getState) => {
+    dispatch({
+      type: 'ALTERNATE_SCROLL_DOWN',
       lines: lines,
-			effect () {
-				const { sessions } = getState();
-				const uid = sessions.activeUid;
-				if (sessions.sessions[uid].inAlternateScreen){
-					window.rpc.emit('data', { uid:uid, data:'\u001bOB'.repeat(lines) });
-				}
-			}
-		});
-	};
+      effect() {
+        const {
+          sessions
+        } = getState();
+        const uid = sessions.activeUid;
+        if (sessions.sessions[uid].inAlternateScreen) {
+          window.rpc.emit('data', {
+            uid: uid,
+            data: '\u001bOB'.repeat(lines)
+          });
+        }
+      }
+    });
+  };
 }
 
 function alternateScrollUp(lines) {
-	return (dispatch, getState) => {
-		dispatch({
-			type: 'ALTERNATE_SCROLL_UP',
+  return (dispatch, getState) => {
+    dispatch({
+      type: 'ALTERNATE_SCROLL_UP',
       lines: lines,
-			effect () {
-				const { sessions } = getState();
-				const uid = sessions.activeUid;
-				if (sessions.sessions[uid].inAlternateScreen){
-					window.rpc.emit('data', { uid:uid, data:'\u001bOA'.repeat(lines) });
-				}
-			}
-		});
-	};
+      effect() {
+        const {
+          sessions
+        } = getState();
+        const uid = sessions.activeUid;
+        if (sessions.sessions[uid].inAlternateScreen) {
+          window.rpc.emit('data', {
+            uid: uid,
+            data: '\u001bOA'.repeat(lines)
+          });
+        }
+      }
+    });
+  };
 }
 
 exports.mapTermsDispatch = (dispatch, map) => {
-	return Object.assign(map, {
-		alternateScrollDown: (lines) => {
-			dispatch(alternateScrollDown(lines));
-		},
-		alternateScrollUp: (lines) => {
-			dispatch(alternateScrollUp(lines));
-		},
-	});
+  return Object.assign(map, {
+    alternateScrollDown: (lines) => {
+      dispatch(alternateScrollDown(lines));
+    },
+    alternateScrollUp: (lines) => {
+      dispatch(alternateScrollUp(lines));
+    },
+  });
 };
 
 exports.getTermProps = (uid, parentProps, props) => {
   var inAlternateScreen = false;
   parentProps.sessions.forEach((session) => {
-  	if (uid == session.uid) {
-  		inAlternateScreen = session.inAlternateScreen;
-  	}
+    if (uid == session.uid) {
+      inAlternateScreen = session.inAlternateScreen;
+    }
   });
   return Object.assign(props, {
-  	inAlternateScreen: inAlternateScreen,
+    inAlternateScreen: inAlternateScreen,
     alternateScrollDown: parentProps.alternateScrollDown,
     alternateScrollUp: parentProps.alternateScrollUp
   });
@@ -79,37 +93,40 @@ exports.getTermProps = (uid, parentProps, props) => {
 
 
 var scrollingDelta;
-function updateCurrentConfigScrollingDelta(){
+
+function updateCurrentConfigScrollingDelta() {
   var userScrollSpeed = 50;
-  try{
+  try {
     userScrollSpeed = window.config.getConfig().alternateScroll.scrollSpeed;
     if (userScrollSpeed > 100 || userScrollSpeed < 1) {
-      userScrollSpeed = Math.min(100, Math.max(1,userScrollSpeed));
+      userScrollSpeed = Math.min(100, Math.max(1, userScrollSpeed));
       console.error("Plugin: hyperterm-alternatescroll", "scrollSpeed should be between 1 and 100");
     }
-  } catch(e){}
-  scrollingDelta = 510 - (userScrollSpeed*5);
+  } catch (e) {}
+  scrollingDelta = 510 - (userScrollSpeed * 5);
 }
 
-exports.decorateTerm = (Term, {React}) => {
+exports.decorateTerm = (Term, {
+  React
+}) => {
   updateCurrentConfigScrollingDelta();
 
-	return class extends React.Component {
+  return class extends React.Component {
     constructor() {
       super();
       this.currentDelta = 0;
     }
 
-		onTerminal(term){
-			this.term = term;
+    onTerminal(term) {
+      this.term = term;
       const originalOnTerminal = this.props.onTerminal;
       if (originalOnTerminal) originalOnTerminal(term);
-		}
+    }
 
-    onWheel(e){
+    onWheel(e) {
       if (this.props.inAlternateScreen) {
         this.currentDelta += e.wheelDeltaY;
-        if (this.currentDelta < -scrollingDelta){
+        if (this.currentDelta < -scrollingDelta) {
           this.props.alternateScrollDown(Math.min(5, -this.currentDelta / scrollingDelta));
           this.currentDelta = -(-this.currentDelta % scrollingDelta);
         } else if (this.currentDelta > scrollingDelta) {
@@ -120,28 +137,31 @@ exports.decorateTerm = (Term, {React}) => {
       }
     }
 
-		componentWillReceiveProps(newProps){
-			if (newProps.inAlternateScreen != this.props.inAlternateScreen) {
+    componentWillReceiveProps(newProps) {
+      if (newProps.inAlternateScreen != this.props.inAlternateScreen) {
         // disable scrolling if in alternate screen
-		    this.term.prefs_.set('scroll-wheel-move-multiplier', newProps.inAlternateScreen ? 0 : 1);
-			}
-		}
+        this.term.prefs_.set('scroll-wheel-move-multiplier', newProps.inAlternateScreen ? 0 : 1);
+      }
+    }
 
-		render() {
-			const onTerminal = this.onTerminal.bind(this);
-			const onWheel = this.onWheel.bind(this);
+    render() {
+      const onTerminal = this.onTerminal.bind(this);
+      const onWheel = this.onWheel.bind(this);
 
-			const props = Object.assign({}, this.props, {onWheel, onTerminal});
+      const props = Object.assign({}, this.props, {
+        onWheel,
+        onTerminal
+      });
 
-			return React.createElement(Term, props);
-		}
-	};
+      return React.createElement(Term, props);
+    }
+  };
 };
 
 exports.middleware = (store) => (next) => (action) => {
-	if (!action) return;
-	if (action.type == 'SESSION_PTY_DATA'){
-		if (action.data.indexOf('\u001b[?1049h') !== -1) {
+  if (!action) return;
+  if (action.type == 'SESSION_PTY_DATA') {
+    if (action.data.indexOf('\u001b[?1049h') !== -1) {
       store.dispatch({
         type: 'ALTERNATE_SCREEN_ON',
         uid: action.uid
@@ -152,8 +172,8 @@ exports.middleware = (store) => (next) => (action) => {
         uid: action.uid
       });
     }
-	} else if (action.type == "CONFIG_RELOAD") {
+  } else if (action.type == "CONFIG_RELOAD") {
     updateCurrentConfigScrollingDelta();
   }
-	next(action);
+  next(action);
 };
