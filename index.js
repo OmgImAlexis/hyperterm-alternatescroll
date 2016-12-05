@@ -24,7 +24,7 @@ exports.reduceSessions = (state, action) => {
   return state;
 };
 
-function alternateScrollDown(lines) {
+function onAlternateScrollDown(lines) {
   return (dispatch, getState) => {
     dispatch({
       type: 'ALTERNATE_SCROLL_DOWN',
@@ -45,7 +45,7 @@ function alternateScrollDown(lines) {
   };
 }
 
-function alternateScrollUp(lines) {
+function onAlternateScrollUp(lines) {
   return (dispatch, getState) => {
     dispatch({
       type: 'ALTERNATE_SCROLL_UP',
@@ -68,26 +68,34 @@ function alternateScrollUp(lines) {
 
 exports.mapTermsDispatch = (dispatch, map) => {
   return Object.assign(map, {
-    alternateScrollDown: (lines) => {
-      dispatch(alternateScrollDown(lines));
+    onAlternateScrollDown: (lines) => {
+      dispatch(onAlternateScrollDown(lines));
     },
-    alternateScrollUp: (lines) => {
-      dispatch(alternateScrollUp(lines));
+    onAlternateScrollUp: (lines) => {
+      dispatch(onAlternateScrollUp(lines));
     },
   });
 };
 
+exports.getTermGroupProps = (uid, parentProps, props) => {
+  return Object.assign(props, {
+    onAlternateScrollDown: parentProps.onAlternateScrollDown,
+    onAlternateScrollUp: parentProps.onAlternateScrollUp
+  });
+}
+
 exports.getTermProps = (uid, parentProps, props) => {
   var inAlternateScreen = false;
-  parentProps.sessions.forEach((session) => {
+  for (var key in parentProps.sessions) {
+    var session = parentProps.sessions[key];
     if (uid == session.uid) {
       inAlternateScreen = session.inAlternateScreen;
     }
-  });
+  }
   return Object.assign(props, {
     inAlternateScreen: inAlternateScreen,
-    alternateScrollDown: parentProps.alternateScrollDown,
-    alternateScrollUp: parentProps.alternateScrollUp
+    onAlternateScrollDown: parentProps.onAlternateScrollDown,
+    onAlternateScrollUp: parentProps.onAlternateScrollUp
   });
 }
 
@@ -127,10 +135,10 @@ exports.decorateTerm = (Term, {
       if (this.props.inAlternateScreen) {
         this.currentDelta += e.wheelDeltaY;
         if (this.currentDelta < -scrollingDelta) {
-          this.props.alternateScrollDown(Math.min(5, -this.currentDelta / scrollingDelta));
+          this.props.onAlternateScrollDown(Math.min(5, -this.currentDelta / scrollingDelta));
           this.currentDelta = -(-this.currentDelta % scrollingDelta);
         } else if (this.currentDelta > scrollingDelta) {
-          this.props.alternateScrollUp(Math.min(5, this.currentDelta / scrollingDelta));
+          this.props.onAlternateScrollUp(Math.min(5, this.currentDelta / scrollingDelta));
           this.currentDelta = this.currentDelta % scrollingDelta;
         }
         e.preventDefault();
