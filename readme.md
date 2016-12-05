@@ -2,26 +2,25 @@
 
 [![npm version](https://img.shields.io/npm/v/hyperterm-alternatescroll.svg)](https://www.npmjs.com/package/hyperterm-alternatescroll)
 
-Mousewheel/trackpad scrolling for alternate screen. (less, git log, nano, etc...)
+Missing feature for Hyper! This plugin allows you to use your scrollwheel/trackpad within apps like less, git log, nano, etc... 
 
 ## Requirement
 
-Hyperterm **0.7.2** or the latest master branch.
-
+Hyper **0.8.0** or the latest master branch.
 
 # Demo
 
 #### Without hyperterm-alternatescroll
 
-![Without hyperterm-alternatescroll](media/without.gif)
+<img src="media/without.gif" width="388"/>
 
 #### With hyperterm-alternatescroll
 
-![With hyperterm-alternatescroll](media/with.gif)
+<img src="media/with.gif" width="388"/>
 
 # Installation
 
-add `hyperterm-alternatescroll` to `~/.hyperterm.js`'s plugin list.
+add `hyperterm-alternatescroll` to `~/.hyper.js`'s plugin list.
 
 ```javascript
 {
@@ -32,7 +31,7 @@ add `hyperterm-alternatescroll` to `~/.hyperterm.js`'s plugin list.
 
 # Config
 
-You can tweak the scroll speed in `~/.hyperterm.js`.
+You can tweak the scroll speed in `~/.hyper.js`.
 ```javascript
 module.exports = {
   config: {
