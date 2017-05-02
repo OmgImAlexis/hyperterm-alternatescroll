@@ -105,7 +105,7 @@ var scrollingDelta;
 function updateCurrentConfigScrollingDelta() {
   var userScrollSpeed = 50;
   try {
-    userScrollSpeed = window.config.getConfig().alternateScroll.scrollSpeed;
+    userScrollSpeed = parseInt(window.config.getConfig().alternateScroll.scrollSpeed, 10);
     if (userScrollSpeed > 100 || userScrollSpeed < 1) {
       userScrollSpeed = Math.min(100, Math.max(1, userScrollSpeed));
       console.error("Plugin: hyperterm-alternatescroll", "scrollSpeed should be between 1 and 100");
